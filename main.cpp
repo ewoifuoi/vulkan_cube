@@ -76,10 +76,10 @@ struct Vertex {
 };
 
 const std::vector<Vertex> vertices = {
-    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+    {{-0.5f, -0.5f}, {1.0f, 0.41f, 0.71f}}, // 浅粉 #FF69B4
+    {{0.5f, -0.5f},  {0.00f, 0.75f, 1.00f}}, // 浅蓝 #00BFFF
+    {{0.5f, 0.5f},   {0.00f, 0.75f, 1.00f}}, // 浅蓝 #00BFFF
+    {{-0.5f, 0.5f},  {1.00f, 1.00f, 1.00f}}  // 白 #FFFFFF
 };
 
 const std::vector<uint16_t> indices = {
@@ -996,7 +996,7 @@ private:
         scissor.extent = swapChainExtent;
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
         vkCmdEndRenderPass(commandBuffer);
         if(VK_SUCCESS != vkEndCommandBuffer(commandBuffer)) {
             throw std::runtime_error("failed to record command buffer!");
