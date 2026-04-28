@@ -53,7 +53,7 @@ struct SwapChainSupportDetails {
 };
 
 struct Vertex {
-    glm::vec2 pos;
+    glm::vec3 pos;
     glm::vec3 color;
 
     static VkVertexInputBindingDescription getBindingDescription() {
@@ -68,7 +68,7 @@ struct Vertex {
         std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
-        attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
         attributeDescriptions[0].offset = offsetof(Vertex, pos);
 
         attributeDescriptions[1].binding = 0;
@@ -78,16 +78,20 @@ struct Vertex {
         return attributeDescriptions;
     }
 };
-
 const std::vector<Vertex> vertices = {
-    {{-0.5f, -0.5f}, {1.0f, 0.41f, 0.71f}},
-    {{0.5f, -0.5f},  {0.00f, 0.75f, 1.00f}},
-    {{0.5f, 0.5f},   {0.00f, 0.75f, 1.00f}},
-    {{-0.5f, 0.5f},  {1.00f, 1.00f, 1.00f}}
+    {{-0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}}, // 0 前左下 (红)
+    {{ 0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}}, // 1 前右下 (绿)
+    {{ 0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}}, // 2 前右上 (蓝)
+    {{-0.5f,  0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}}, // 3 前左上 (白)
+    {{-0.5f, -0.5f, -0.5f}, {1.0f, 1.0f, 0.0f}}, // 4 后左下 (黄)
+    {{ 0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 1.0f}}, // 5 后右下 (青)
+    {{ 0.5f,  0.5f, -0.5f}, {1.0f, 0.0f, 1.0f}}, // 6 后右上 (紫)
+    {{-0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}}  // 7 后左上 (黑)
 };
-
 const std::vector<uint16_t> indices = {
-    0, 1, 2, 2, 3, 0
+    0, 1,   1, 2,   2, 3,   3, 0,
+    4, 5,   5, 6,   6, 7,   7, 4,
+    0, 4,   1, 5,   2, 6,   3, 7
 };
 
 struct UniformBufferObject {
@@ -679,7 +683,7 @@ private:
 
         VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
         inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
         inputAssembly.primitiveRestartEnable = VK_FALSE;
 
         VkViewport viewport{};
@@ -704,9 +708,9 @@ private:
         VkPipelineRasterizationStateCreateInfo rasterizer{};
         rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
         rasterizer.depthClampEnable = VK_FALSE;
-        rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+        rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
         rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+        rasterizer.cullMode = VK_CULL_MODE_NONE;
         rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 
         rasterizer.depthBiasEnable = VK_FALSE;
