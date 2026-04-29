@@ -78,20 +78,55 @@ struct Vertex {
         return attributeDescriptions;
     }
 };
+
 const std::vector<Vertex> vertices = {
-    {{-0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 0.0f}}, // 0 前左下 (红)
-    {{ 0.5f, -0.5f,  0.5f}, {0.0f, 1.0f, 0.0f}}, // 1 前右下 (绿)
-    {{ 0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}}, // 2 前右上 (蓝)
-    {{-0.5f,  0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}}, // 3 前左上 (白)
-    {{-0.5f, -0.5f, -0.5f}, {1.0f, 1.0f, 0.0f}}, // 4 后左下 (黄)
-    {{ 0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 1.0f}}, // 5 后右下 (青)
-    {{ 0.5f,  0.5f, -0.5f}, {1.0f, 0.0f, 1.0f}}, // 6 后右上 (紫)
-    {{-0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}}  // 7 后左上 (黑)
+    // ================= 前面 (Front) - 粉色系渐变 =================
+    // 从左上角(亮粉) 到 右下角(深粉)
+    {{-0.5f, -0.5f,  0.5f}, {0.9f, 0.4f, 0.7f}}, // 左下
+    {{ 0.5f, -0.5f,  0.5f}, {0.8f, 0.3f, 0.6f}}, // 右下 (最暗)
+    {{ 0.5f,  0.5f,  0.5f}, {0.9f, 0.5f, 0.8f}}, // 右上
+    {{-0.5f,  0.5f,  0.5f}, {1.0f, 0.7f, 0.9f}}, // 左上 (最亮)
+
+    // ================= 后面 (Back) - 暗粉色系渐变 =================
+    {{ 0.5f, -0.5f, -0.5f}, {0.5f, 0.2f, 0.4f}}, // 左下(从背面看)
+    {{-0.5f, -0.5f, -0.5f}, {0.4f, 0.1f, 0.3f}}, // 右下
+    {{-0.5f,  0.5f, -0.5f}, {0.6f, 0.3f, 0.5f}}, // 右上
+    {{ 0.5f,  0.5f, -0.5f}, {0.7f, 0.4f, 0.6f}}, // 左上
+
+    // ================= 左面 (Left) - 暗蓝色系渐变 =================
+    {{-0.5f, -0.5f, -0.5f}, {0.1f, 0.3f, 0.5f}}, // 左下
+    {{-0.5f, -0.5f,  0.5f}, {0.1f, 0.4f, 0.6f}}, // 右下
+    {{-0.5f,  0.5f,  0.5f}, {0.2f, 0.5f, 0.8f}}, // 右上
+    {{-0.5f,  0.5f, -0.5f}, {0.3f, 0.6f, 0.9f}}, // 左上
+
+    // ================= 右面 (Right) - 明蓝色系渐变 =================
+    {{ 0.5f, -0.5f,  0.5f}, {0.1f, 0.5f, 0.9f}}, // 左下
+    {{ 0.5f, -0.5f, -0.5f}, {0.0f, 0.4f, 0.8f}}, // 右下
+    {{ 0.5f,  0.5f, -0.5f}, {0.2f, 0.6f, 1.0f}}, // 右上
+    {{ 0.5f,  0.5f,  0.5f}, {0.4f, 0.8f, 1.0f}}, // 左上
+
+    // ================= 上面 (Top) - 薄荷绿/青色渐变 (替换白色) =================
+    // 模拟顶光，整体明亮，从左上角的翠绿过渡到右下角的深青色
+    {{-0.5f,  0.5f,  0.5f}, {0.3f, 0.9f, 0.8f}}, // 左下
+    {{ 0.5f,  0.5f,  0.5f}, {0.1f, 0.8f, 0.7f}}, // 右下 (稍暗)
+    {{ 0.5f,  0.5f, -0.5f}, {0.2f, 0.9f, 0.8f}}, // 右上
+    {{-0.5f,  0.5f, -0.5f}, {0.4f, 1.0f, 0.9f}}, // 左上 (最亮)
+
+    // ================= 下面 (Bottom) - 深紫色渐变 (替换灰色) =================
+    // 模拟底部阴影，整体暗沉，从紫红色过渡到深邃的暗紫色
+    {{-0.5f, -0.5f, -0.5f}, {0.4f, 0.2f, 0.7f}}, // 左下
+    {{ 0.5f, -0.5f, -0.5f}, {0.3f, 0.1f, 0.6f}}, // 右下
+    {{ 0.5f, -0.5f,  0.5f}, {0.2f, 0.1f, 0.5f}}, // 右上 (最暗)
+    {{-0.5f, -0.5f,  0.5f}, {0.3f, 0.2f, 0.6f}}  // 左上
 };
+
 const std::vector<uint16_t> indices = {
-    0, 1,   1, 2,   2, 3,   3, 0,
-    4, 5,   5, 6,   6, 7,   7, 4,
-    0, 4,   1, 5,   2, 6,   3, 7
+    0, 1, 2, 2, 3, 0,       // 前
+    4, 5, 6, 6, 7, 4,       // 后
+    8, 9, 10, 10, 11, 8,    // 左
+    12, 13, 14, 14, 15, 12, // 右
+    16, 17, 18, 18, 19, 16, // 上
+    20, 21, 22, 22, 23, 20  // 下
 };
 
 struct UniformBufferObject {
@@ -684,7 +719,7 @@ private:
 
         VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
         inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         inputAssembly.primitiveRestartEnable = VK_FALSE;
 
         VkViewport viewport{};
@@ -709,9 +744,9 @@ private:
         VkPipelineRasterizationStateCreateInfo rasterizer{};
         rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
         rasterizer.depthClampEnable = VK_FALSE;
-        rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+        rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
         rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_NONE;
+        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
         rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 
         rasterizer.depthBiasEnable = VK_FALSE;
@@ -1176,6 +1211,7 @@ private:
         auto currentTime = std::chrono::high_resolution_clock::now();
         float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
         UniformBufferObject ubo{};
+
         ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float) swapChainExtent.height, 0.1f, 10.0f);
