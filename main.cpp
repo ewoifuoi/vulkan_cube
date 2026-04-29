@@ -203,9 +203,23 @@ private:
     }
 
     void mainLoop() {
+        double previousTime = glfwGetTime();
+        const char* COLOR_INFO    = "\033[36m";
+        const char* COLOR_RESET   = "\033[0m";
+        int frameCount = 0;
         while(!glfwWindowShouldClose(window)) {
             glfwPollEvents();
             drawFrame();
+            double currentTime = glfwGetTime();
+            frameCount++;
+            if (currentTime - previousTime >= 1.0) {
+                double fps = frameCount / (currentTime - previousTime);
+                
+                std::cout << COLOR_INFO << "\r[Vulkan Cube] FPS: " << static_cast<int>(fps) << "    " << COLOR_RESET << std::flush;
+
+                previousTime = currentTime;
+                frameCount = 0;
+            }
         }
         vkDeviceWaitIdle(device);
     }
