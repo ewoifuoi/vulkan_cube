@@ -54,7 +54,7 @@ struct SwapChainSupportDetails {
 
 struct Vertex {
     glm::vec3 pos;
-    glm::vec3 color;
+    glm::vec4 color;
 
     static VkVertexInputBindingDescription getBindingDescription() {
         VkVertexInputBindingDescription bindingDescription{};
@@ -73,21 +73,20 @@ struct Vertex {
 
         attributeDescriptions[1].binding = 0;
         attributeDescriptions[1].location = 1;
-        attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+        attributeDescriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
         attributeDescriptions[1].offset = offsetof(Vertex, color);
         return attributeDescriptions;
     }
 };
 const std::vector<Vertex> vertices = {
-    // 坐标映射到 RGB，但整体亮度压低到 0.05 ~ 0.40，专为加法混合设计
-    {{-0.5f, -0.5f,  0.5f}, {0.05f, 0.05f, 0.40f}}, // 0 前左下 (幽灵蓝)
-    {{ 0.5f, -0.5f,  0.5f}, {0.40f, 0.05f, 0.40f}}, // 1 前右下 (幽灵洋红)
-    {{ 0.5f,  0.5f,  0.5f}, {0.40f, 0.40f, 0.40f}}, // 2 前右上 (幽灵白)
-    {{-0.5f,  0.5f,  0.5f}, {0.05f, 0.40f, 0.40f}}, // 3 前左上 (幽灵青)
-    {{-0.5f, -0.5f, -0.5f}, {0.05f, 0.05f, 0.05f}}, // 4 后左下 (暗微光)
-    {{ 0.5f, -0.5f, -0.5f}, {0.40f, 0.05f, 0.05f}}, // 5 后右下 (幽灵红)
-    {{ 0.5f,  0.5f, -0.5f}, {0.40f, 0.40f, 0.05f}}, // 6 后右上 (幽灵黄)
-    {{-0.5f,  0.5f, -0.5f}, {0.05f, 0.40f, 0.05f}}  // 7 后左上 (幽灵绿)
+    {{-0.5f, -0.5f,  0.5f}, {0.05f, 0.05f, 0.40f, 0.9f}}, // 0 前左下 (幽灵蓝)
+    {{ 0.5f, -0.5f,  0.5f}, {0.40f, 0.05f, 0.40f, 0.9f}}, // 1 前右下 (幽灵洋红)
+    {{ 0.5f,  0.5f,  0.5f}, {0.40f, 0.40f, 0.40f, 0.9f}}, // 2 前右上 (幽灵白)
+    {{-0.5f,  0.5f,  0.5f}, {0.05f, 0.40f, 0.40f, 0.9f}}, // 3 前左上 (幽灵青)
+    {{-0.5f, -0.5f, -0.5f}, {0.05f, 0.05f, 0.05f, 0.9f}}, // 4 后左下 (暗微光)
+    {{ 0.5f, -0.5f, -0.5f}, {0.40f, 0.05f, 0.05f, 0.9f}}, // 5 后右下 (幽灵红)
+    {{ 0.5f,  0.5f, -0.5f}, {0.40f, 0.40f, 0.05f, 0.9f}}, // 6 后右上 (幽灵黄)
+    {{-0.5f,  0.5f, -0.5f}, {0.05f, 0.40f, 0.05f, 0.9f}}  // 7 后左上 (幽灵绿)
 };
 
 const std::vector<uint16_t> indices = {
@@ -190,6 +189,9 @@ private:
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
+
         window = glfwCreateWindow(WIDTH, HEIGHT, "triangle", nullptr, nullptr);
         glfwSetWindowUserPointer(window, this);
         glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
@@ -596,7 +598,20 @@ private:
         }
 
         createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
-        createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+
+        // 查找支持的透明混合模式
+        VkCompositeAlphaFlagBitsKHR compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        if (swapChainSupport.capabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR) {
+            compositeAlpha = VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR;
+        } else if (swapChainSupport.capabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR) {
+            compositeAlpha = VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR;
+        } else if (swapChainSupport.capabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR) {
+            compositeAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
+        }
+
+        // 应用混合模式
+        createInfo.compositeAlpha = compositeAlpha;
+
         createInfo.presentMode = presentModes;
         createInfo.clipped = VK_TRUE;
 
@@ -716,7 +731,7 @@ private:
         rasterizer.depthClampEnable = VK_FALSE;
         rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
         rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_NONE;
+        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
         rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 
         rasterizer.depthBiasEnable = VK_FALSE;
@@ -730,10 +745,13 @@ private:
         VkPipelineColorBlendAttachmentState colorBlendAttachment{};
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
-        colorBlendAttachment.blendEnable = VK_TRUE;
-        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // 当前面的颜色
-        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE; // 加上背景的颜色
+        colorBlendAttachment.blendEnable = VK_TRUE; 
+        
+        // 加法混合：源颜色 * 源Alpha + 目标颜色 * 1.0
+        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
         colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+        
         colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
         colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
         colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
@@ -1014,7 +1032,7 @@ private:
         renderPassInfo.renderArea.offset = {0, 0};
         renderPassInfo.renderArea.extent = swapChainExtent;
 
-        VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+        VkClearValue clearColor = {{{0.003f, 0.003f, 0.003f, 0.7f}}};
         renderPassInfo.clearValueCount = 1;
         renderPassInfo.pClearValues = &clearColor;
         vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
