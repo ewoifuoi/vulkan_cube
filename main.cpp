@@ -79,50 +79,24 @@ struct Vertex {
     }
 };
 const std::vector<Vertex> vertices = {
-    // ================= 前面 (Front, Z=0.5, B=1.0) =================
-    {{-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}}, // 左下 (蓝)
-    {{ 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 1.0f}}, // 右下 (洋红)
-    {{ 0.5f,  0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}}, // 右上 (白)
-    {{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 1.0f}}, // 左上 (青)
-
-    // ================= 后面 (Back, Z=-0.5, B=0.0) =================
-    {{ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}}, // 左下(从背面看) (红)
-    {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}}, // 右下 (黑)
-    {{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}}, // 右上 (绿)
-    {{ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f, 0.0f}}, // 左上 (黄)
-
-    // ================= 左面 (Left, X=-0.5, R=0.0) =================
-    {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}}, // 左下 (黑)
-    {{-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}}, // 右下 (蓝)
-    {{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 1.0f}}, // 右上 (青)
-    {{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}}, // 左上 (绿)
-
-    // ================= 右面 (Right, X=0.5, R=1.0) =================
-    {{ 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 1.0f}}, // 左下 (洋红)
-    {{ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}}, // 右下 (红)
-    {{ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f, 0.0f}}, // 右上 (黄)
-    {{ 0.5f,  0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}}, // 左上 (白)
-
-    // ================= 上面 (Top, Y=0.5, G=1.0) =================
-    {{-0.5f,  0.5f,  0.5f}, {0.0f, 1.0f, 1.0f}}, // 左下 (青)
-    {{ 0.5f,  0.5f,  0.5f}, {1.0f, 1.0f, 1.0f}}, // 右下 (白)
-    {{ 0.5f,  0.5f, -0.5f}, {1.0f, 1.0f, 0.0f}}, // 右上 (黄)
-    {{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}}, // 左上 (绿)
-
-    // ================= 下面 (Bottom, Y=-0.5, G=0.0) =================
-    {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, 0.0f}}, // 左下 (黑)
-    {{ 0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}}, // 右下 (红)
-    {{ 0.5f, -0.5f,  0.5f}, {1.0f, 0.0f, 1.0f}}, // 右上 (洋红)
-    {{-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}}  // 左上 (蓝)
+    // 坐标映射到 RGB，但整体亮度压低到 0.05 ~ 0.40，专为加法混合设计
+    {{-0.5f, -0.5f,  0.5f}, {0.05f, 0.05f, 0.40f}}, // 0 前左下 (幽灵蓝)
+    {{ 0.5f, -0.5f,  0.5f}, {0.40f, 0.05f, 0.40f}}, // 1 前右下 (幽灵洋红)
+    {{ 0.5f,  0.5f,  0.5f}, {0.40f, 0.40f, 0.40f}}, // 2 前右上 (幽灵白)
+    {{-0.5f,  0.5f,  0.5f}, {0.05f, 0.40f, 0.40f}}, // 3 前左上 (幽灵青)
+    {{-0.5f, -0.5f, -0.5f}, {0.05f, 0.05f, 0.05f}}, // 4 后左下 (暗微光)
+    {{ 0.5f, -0.5f, -0.5f}, {0.40f, 0.05f, 0.05f}}, // 5 后右下 (幽灵红)
+    {{ 0.5f,  0.5f, -0.5f}, {0.40f, 0.40f, 0.05f}}, // 6 后右上 (幽灵黄)
+    {{-0.5f,  0.5f, -0.5f}, {0.05f, 0.40f, 0.05f}}  // 7 后左上 (幽灵绿)
 };
 
 const std::vector<uint16_t> indices = {
-    0, 1, 2, 2, 3, 0,       // 前
-    4, 5, 6, 6, 7, 4,       // 后
-    8, 9, 10, 10, 11, 8,    // 左
-    12, 13, 14, 14, 15, 12, // 右
-    16, 17, 18, 18, 19, 16, // 上
-    20, 21, 22, 22, 23, 20  // 下
+    0, 1, 2, 2, 3, 0, // 前
+    5, 4, 7, 7, 6, 5, // 后
+    4, 0, 3, 3, 7, 4, // 左
+    1, 5, 6, 6, 2, 1, // 右
+    3, 2, 6, 6, 7, 3, // 上
+    4, 5, 1, 1, 0, 4  // 下
 };
 
 struct UniformBufferObject {
@@ -742,7 +716,7 @@ private:
         rasterizer.depthClampEnable = VK_FALSE;
         rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
         rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+        rasterizer.cullMode = VK_CULL_MODE_NONE;
         rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 
         rasterizer.depthBiasEnable = VK_FALSE;
@@ -755,7 +729,14 @@ private:
 
         VkPipelineColorBlendAttachmentState colorBlendAttachment{};
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-        colorBlendAttachment.blendEnable = VK_FALSE;
+
+        colorBlendAttachment.blendEnable = VK_TRUE;
+        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // 当前面的颜色
+        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE; // 加上背景的颜色
+        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
         VkPipelineColorBlendStateCreateInfo colorBlending{};
         colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
